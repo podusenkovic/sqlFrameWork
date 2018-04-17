@@ -10,6 +10,8 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlField>
+#include <QSqlTableModel>
+#include <QTableView>
 
 namespace Ui {
 	class MainWindow;
@@ -23,6 +25,13 @@ private slots:
 	void openConnectWin();
 	void openNewConnection();
 	void sendCommand();
+	void openTableModel();
+	
+	void commandToShowAll();
+	void commandToShowOnly();
+	void commandToShowTables();
+	void commandToInsert();
+	void commandToDelete();
 	
 public:
 	explicit MainWindow(QWidget *parent = 0);
