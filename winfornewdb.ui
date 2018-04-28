@@ -52,7 +52,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>testdatabase</string>
+    <string>mydatabase</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="line_username">

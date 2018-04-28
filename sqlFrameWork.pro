@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    winfornewdb.cpp
+    winfornewdb.cpp \
+    drawwindow.cpp
 
 HEADERS += \
         mainwindow.h \
-    winfornewdb.h
+    winfornewdb.h \
+    drawwindow.h
 
 FORMS += \
         mainwindow.ui \

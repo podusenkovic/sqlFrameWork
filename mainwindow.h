@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "winfornewdb.h"
+#include "drawwindow.h"
 
 #include <QMainWindow>
 #include <QWidget>
@@ -10,8 +11,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlField>
-#include <QSqlTableModel>
-#include <QTableView>
+#include <QTime>
 
 namespace Ui {
 	class MainWindow;
@@ -25,7 +25,8 @@ private slots:
 	void openConnectWin();
 	void openNewConnection();
 	void sendCommand();
-	void openTableModel();
+	
+	void openScheme();
 	
 	void commandToShowAll();
 	void commandToShowOnly();
@@ -35,14 +36,17 @@ private slots:
 	
 public:
 	explicit MainWindow(QWidget *parent = 0);
+	
+	
 	~MainWindow();
 	
 private:
 	QSqlDatabase db;
 	QStringList tablesInDB;
-	QSqlQuery *sql;
-	winForNewDB *win;
-	Ui::MainWindow *ui;
+	QSqlQuery *sql = nullptr;
+	winForNewDB *win = nullptr;
+	drawWindow *sWin = nullptr;
+	Ui::MainWindow *ui = nullptr;	
 };
 
 #endif // MAINWINDOW_H

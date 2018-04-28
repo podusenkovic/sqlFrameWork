@@ -6,14 +6,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+	QTime time;
+	srand(time.msecsSinceStartOfDay());
 	
 	connect(ui->button_connect, SIGNAL(clicked(bool)),
 			this, SLOT(openConnectWin()));
 	connect(ui->button_to_command, SIGNAL(clicked(bool)),
 			this, SLOT(sendCommand()));
 
-	connect(ui->button_table_model, SIGNAL(clicked(bool)),
-			this, SLOT(openTableModel()));
+	connect(ui->button_scheme, SIGNAL(clicked(bool)),
+			this, SLOT(openScheme()));
 	
 	connect(ui->button_show_all_data, SIGNAL(clicked(bool)),
 			this, SLOT(commandToShowAll()));
@@ -26,9 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->button_delete, SIGNAL(clicked(bool)),
 			this, SLOT(commandToDelete()));
 	
-	
 	ui->label_with_result->setText("");
-	
 }
 
 MainWindow::~MainWindow()
@@ -36,20 +36,11 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-
-void MainWindow::openTableModel(){
-	/*
-	 * 
-	 * TODO 
-	 * PRETTY
-	 * OUTPUT
-	 * OF DB (table model)
-	 * 
-	 */	
-}
-
-
 void MainWindow::openConnectWin(){
+	if (win)
+		win->close();
+	delete win;
+	
 	win = new winForNewDB();
 	win->show();
 	connect(win, SIGNAL(accepted()),
@@ -59,7 +50,9 @@ void MainWindow::openConnectWin(){
 void MainWindow::openNewConnection(){
 	QString data = win->getData();
 	win->hide();
-	qDebug() << data;
+	
+	db.close();
+	
 	db = QSqlDatabase::addDatabase("QMYSQL");
 	db.setHostName(data.split(":")[0]);
 	db.setDatabaseName(data.split(":")[1]);
@@ -72,9 +65,9 @@ void MainWindow::openNewConnection(){
 
 	ui->label_with_result->setText(QString("In this database %1 tables").arg(tablesInDB.size()) + "\n");
 	for (int i = 0; i < tablesInDB.size(); i++)
-		ui->label_with_result->setText(ui->label_with_result->text() + QString::number(i + 1) + ") " + tablesInDB[i] + "\n");
+		ui->label_with_result->append(QString::number(i + 1) + ") " + tablesInDB[i]);
 	
-	sql = new QSqlQuery();	
+	sql = new QSqlQuery();
 }
 
 
@@ -85,22 +78,26 @@ void MainWindow::sendCommand(){
 	if (sql->isActive()) {
 		ui->label_with_result->setText("There is result of request: \n");
 		QSqlRecord rec = sql->record();
+		QString fields = "";
 		for (int i = 0; i < rec.count(); i++)
-			ui->label_with_result->setText(ui->label_with_result->text() + rec.fieldName(i) + "\t");
-		ui->label_with_result->setText(ui->label_with_result->text() + "\n");
+			fields += rec.fieldName(i).leftJustified(15) + "\t";	
+		ui->label_with_result->append(fields);
+		ui->label_with_result->append("\n");
 		while (sql->next()) {
+			QString data = "";
 			for (int i = 0; i < rec.count(); i++)
-				ui->label_with_result->setText(ui->label_with_result->text() + 
-											   sql->value(i).toString() + "\t");
-			ui->label_with_result->setText(ui->label_with_result->text() + "\n");
+				data += sql->value(i).toString().leftJustified(15) + "\t";
+				ui->label_with_result->append(data);
+			ui->label_with_result->append("\n");
 		}
 	}
+	else ui->label_with_result->setText("Something gone wrong, check command\n");
 }
 
 
-
 void MainWindow::commandToShowAll(){
-	ui->command_line->setText(QString("SELECT * FROM %1").arg(ui->line_w_table_to_get_data->text()));
+	ui->command_line->setText(QString("SELECT * FROM %1")
+							  .arg(ui->line_w_table_to_get_data->text()));
 }
 
 void MainWindow::commandToShowOnly(){
@@ -124,7 +121,7 @@ void MainWindow::commandToInsert(){
 	cols.remove(0,1);
 	ui->command_line->setText(QString("INSERT INTO %1 (%2) values (%3)")
 							  .arg(ui->line_ins_table->text())
-							  .arg(cols).arg(values));	
+							  .arg(cols).arg(values));
 }
 
 void MainWindow::commandToDelete(){
@@ -133,5 +130,12 @@ void MainWindow::commandToDelete(){
 							  .arg(ui->line_del_pk->text()));
 }
 
+void MainWindow::openScheme(){
+	if (sWin)
+		sWin->close();
+	delete sWin;
+	sWin = new drawWindow(db, tablesInDB, sql);
+	sWin->show();
+}
 
 
